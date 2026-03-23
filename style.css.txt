@@ -1,0 +1,20 @@
+body {
+  text-align: center;
+  background: #111;
+  color: white;
+  font-family: Arial;
+}
+
+canvas {
+  background: linear-gradient(#222, #000);
+  display: block;
+  margin: 20px auto;
+  border: 2px solid white;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}

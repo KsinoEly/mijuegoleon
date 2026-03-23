@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Juego</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Juego de Saltos</h1>
+
+<div id="menu">
+  <p>Elegí tu personaje:</p>
+  <button onclick="selectCharacter('boy')">👦 Nene</button>
+  <button onclick="selectCharacter('girl')">👧 Nena</button>
+</div>
+
+<canvas id="game" width="800" height="300"></canvas>
+
+<p>Puntaje: <span id="score">0</span></p>
+
+<script src="game.js"></script>
+
+</body>
+</html>
