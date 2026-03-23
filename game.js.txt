@@ -38,7 +38,7 @@ function createObstacle() {
 
 setInterval(createObstacle, 1500);
 
-// salto (teclado + celular)
+// salto
 function jump() {
   if (player.y >= 200) {
     player.velocityY = player.jump;
@@ -84,9 +84,8 @@ function checkCollision() {
   }
 }
 
-// dibujo personaje tipo “nene”
+// dibujar personaje
 function drawPlayer() {
-  // cuerpo
   ctx.fillStyle = characterType === "boy" ? "blue" : "pink";
   ctx.fillRect(player.x, player.y, player.width, player.height);
 
@@ -123,7 +122,7 @@ function gameLoop() {
     score++;
     document.getElementById("score").innerText = score;
 
-    // aumentar dificultad
+    // dificultad
     if (score % 200 === 0) {
       speed += 0.5;
     }
