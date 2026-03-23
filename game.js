@@ -34,7 +34,7 @@ let player = {
   jumpPower: -12,
   onGround: false,
   onPlatform: false,
-  runFrame: 0 // animación de correr
+  runFrame: 0
 };
 
 let obstacles = [];
@@ -42,7 +42,6 @@ let particles = [];
 let floatingLetters = [];
 
 let obstacleCount = 0;
-let letterTimer = 0;
 
 // Dibujar jugador animado corriendo
 function drawCharacter(x, y, type) {
@@ -131,7 +130,7 @@ function createLetter() {
       width: 20,
       height: 20,
       char: "L",
-      phase: 0 // movimiento sinusoidal
+      phase: 0
     });
   }
 }
@@ -275,22 +274,33 @@ function checkCollision(){
   }
 }
 
-// Dibujar jugador y obstáculos
+// Dibujar jugador y obstáculos con destellos
 function drawPlayer(){ drawCharacter(player.x,player.y,characterType);}
 function drawObstacles(){
   for(let obs of obstacles){
+    let glow = Math.sin(Date.now()/200)*0.5+0.5;
     switch(obs.type){
-      case "square": ctx.fillStyle="red"; ctx.fillRect(obs.x,obs.y,obs.width,obs.height); break;
-      case "circle": ctx.fillStyle="green"; ctx.beginPath(); ctx.arc(obs.x+obs.width/2,obs.y+obs.height/2,obs.width/2,0,Math.PI*2); ctx.fill(); break;
-      case "triangle": ctx.fillStyle="orange"; ctx.beginPath(); ctx.moveTo(obs.x,obs.y+obs.height); ctx.lineTo(obs.x+obs.width/2,obs.y); ctx.lineTo(obs.x+obs.width,obs.y+obs.height); ctx.closePath(); ctx.fill(); break;
-      case "platform": ctx.fillStyle="#5555ff"; ctx.fillRect(obs.x,obs.y,obs.width,obs.height); break;
-      case "step": ctx.fillStyle="#9999ff"; ctx.fillRect(obs.x,obs.y,obs.width,obs.height); break;
+      case "square": ctx.fillStyle=`rgba(255,0,0,${0.8+0.2*glow})`; ctx.fillRect(obs.x,obs.y,obs.width,obs.height); break;
+      case "circle": ctx.fillStyle=`rgba(0,255,0,${0.8+0.2*glow})`; ctx.beginPath(); ctx.arc(obs.x+obs.width/2,obs.y+obs.height/2,obs.width/2,0,Math.PI*2); ctx.fill(); break;
+      case "triangle": ctx.fillStyle=`rgba(255,165,0,${0.8+0.2*glow})`; ctx.beginPath(); ctx.moveTo(obs.x,obs.y+obs.height); ctx.lineTo(obs.x+obs.width/2,obs.y); ctx.lineTo(obs.x+obs.width,obs.y+obs.height); ctx.closePath(); ctx.fill(); break;
+      case "platform": ctx.fillStyle=`rgba(85,85,255,${0.8+0.2*glow})`; ctx.fillRect(obs.x,obs.y,obs.width,obs.height); break;
+      case "step": ctx.fillStyle=`rgba(153,153,255,${0.8+0.2*glow})`; ctx.fillRect(obs.x,obs.y,obs.width,obs.height); break;
     }
   }
 
-  ctx.fillStyle="yellow";
-  ctx.font="20px Arial";
-  floatingLetters.forEach(l=>ctx.fillText(l.char,l.x,l.y+15));
+  floatingLetters.forEach(l=>{
+    ctx.fillStyle="yellow";
+    ctx.font="20px Arial";
+    ctx.fillText(l.char,l.x,l.y+15);
+
+    if(superPower){
+      ctx.strokeStyle=`rgba(255,255,0,${Math.sin(Date.now()/100)*0.5+0.5})`;
+      ctx.lineWidth=4;
+      ctx.beginPath();
+      ctx.arc(player.x+player.width/2,player.y+player.height/2,40,0,Math.PI*2);
+      ctx.stroke();
+    }
+  });
 }
 
 // Game over
