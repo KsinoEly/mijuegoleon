@@ -3,14 +3,17 @@ const ctx = canvas.getContext("2d");
 
 let characterType = null;
 let gameStarted = false;
+let gameOver = false;
 let score = 0;
-let speed = 5;
+let speed = 2.5; // empieza más lento
 
 // elegir personaje
 function selectCharacter(type) {
   characterType = type;
   gameStarted = true;
+  gameOver = false;
   document.getElementById("menu").style.display = "none";
+  resetGame();
 }
 
 // jugador
@@ -24,32 +27,53 @@ let player = {
   jump: -12
 };
 
-// obstáculos
 let obstacles = [];
 
+// crear obstáculos
 function createObstacle() {
-  obstacles.push({
-    x: canvas.width,
-    y: 220,
-    width: 20,
-    height: 40
-  });
+  if (!gameOver && gameStarted) {
+    obstacles.push({
+      x: canvas.width,
+      y: 220,
+      width: 20,
+      height: 40
+    });
+  }
 }
+setInterval(createObstacle, 2000); // menos obstáculos = más fácil
 
-setInterval(createObstacle, 1500);
+// salto o reinicio
+function handleInput() {
+  if (!gameStarted) return;
 
-// salto
-function jump() {
+  if (gameOver) {
+    resetGame();
+    return;
+  }
+
   if (player.y >= 200) {
     player.velocityY = player.jump;
   }
 }
 
+// teclado
 document.addEventListener("keydown", e => {
-  if (e.code === "Space") jump();
+  if (e.code === "Space") handleInput();
 });
 
-canvas.addEventListener("click", jump);
+// táctil
+canvas.addEventListener("click", handleInput);
+canvas.addEventListener("touchstart", handleInput);
+
+// reiniciar juego
+function resetGame() {
+  player.y = 200;
+  player.velocityY = 0;
+  obstacles = [];
+  score = 0;
+  speed = 2.5; // reinicia lento
+  gameOver = false;
+}
 
 // física
 function updatePlayer() {
@@ -62,7 +86,7 @@ function updatePlayer() {
   }
 }
 
-// obstáculos
+// mover obstáculos
 function updateObstacles() {
   for (let obs of obstacles) {
     obs.x -= speed;
@@ -78,8 +102,7 @@ function checkCollision() {
       player.y < obs.y + obs.height &&
       player.y + player.height > obs.y
     ) {
-      alert("💀 Game Over - Puntaje: " + score);
-      location.reload();
+      gameOver = true;
     }
   }
 }
@@ -101,14 +124,37 @@ function drawPlayer() {
   ctx.fillRect(player.x + 18, player.y - 12, 2, 2);
 }
 
+// dibujar GAME OVER
+function drawGameOver() {
+  ctx.fillStyle = "white";
+  ctx.font = "30px Arial";
+  ctx.fillText("GAME OVER", 280, 120);
+
+  ctx.font = "20px Arial";
+  ctx.fillText("Puntaje: " + score, 320, 160);
+
+  ctx.font = "16px Arial";
+  ctx.fillText("Toca o presiona espacio para reiniciar", 180, 200);
+}
+
 // loop
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (gameStarted) {
-    updatePlayer();
-    updateObstacles();
-    checkCollision();
+    if (!gameOver) {
+      updatePlayer();
+      updateObstacles();
+      checkCollision();
+
+      score++;
+      document.getElementById("score").innerText = score;
+
+      // dificultad progresiva más lenta
+      if (score % 300 === 0) {
+        speed += 0.3;
+      }
+    }
 
     drawPlayer();
 
@@ -118,17 +164,12 @@ function gameLoop() {
       ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
     }
 
-    // puntaje
-    score++;
-    document.getElementById("score").innerText = score;
-
-    // dificultad
-    if (score % 200 === 0) {
-      speed += 0.5;
+    if (gameOver) {
+      drawGameOver();
     }
   }
 
   requestAnimationFrame(gameLoop);
 }
 
-gameLoop();
+gameLoop();vvvvvv
