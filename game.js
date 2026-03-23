@@ -45,13 +45,11 @@ let obstacleCount = 0;
 
 // Dibujar jugador animado corriendo
 function drawCharacter(x, y, type) {
-  // Cabeza
   ctx.fillStyle = "#ffe0bd";
   ctx.beginPath();
   ctx.arc(x + 15, y - 10, 12, 0, Math.PI * 2);
   ctx.fill();
 
-  // Cara
   ctx.fillStyle = "black";
   ctx.beginPath();
   ctx.arc(x + 8, y - 12, 3, 0, Math.PI * 2);
@@ -64,7 +62,6 @@ function drawCharacter(x, y, type) {
   ctx.arc(x + 15, y - 5, 8, 0, Math.PI);
   ctx.stroke();
 
-  // Cabello para nena
   if (type === "girl") {
     ctx.fillStyle = "#ffcc00";
     ctx.beginPath();
@@ -75,14 +72,11 @@ function drawCharacter(x, y, type) {
     ctx.fill();
   }
 
-  // Cuerpo
   ctx.fillStyle = type === "boy" ? "#3498db" : "#e91e63";
   ctx.fillRect(x, y, 30, 40);
 
-  // Animación de correr
   let frame = Math.sin(player.runFrame) * 5;
 
-  // Brazos
   ctx.strokeStyle = "#000";
   ctx.lineWidth = 3;
   ctx.beginPath();
@@ -92,7 +86,6 @@ function drawCharacter(x, y, type) {
   ctx.lineTo(x + 35, y + 20 - frame);
   ctx.stroke();
 
-  // Piernas
   ctx.beginPath();
   ctx.moveTo(x + 8, y + 40);
   ctx.lineTo(x + 5, y + 50 - frame);
@@ -101,7 +94,7 @@ function drawCharacter(x, y, type) {
   ctx.stroke();
 }
 
-// Crear obstáculos y plataformas
+// Obstáculos
 function createObstacle() {
   if (!gameOver && gameStarted && !paused) {
     obstacleCount++;
@@ -121,7 +114,7 @@ function createObstacle() {
 }
 setInterval(createObstacle, 2000);
 
-// Superpoder cada 7 segundos
+// Superpoder
 function createLetter() {
   if (!gameOver && gameStarted && !paused) {
     floatingLetters.push({
@@ -166,7 +159,7 @@ function drawParticles() {
   });
 }
 
-// Salto
+// Saltar
 function startJump() {
   jumpPressed = true;
   if (jumpCount < maxJumps) {
@@ -176,7 +169,6 @@ function startJump() {
     player.onPlatform = false;
   }
 }
-
 function stopJump() { jumpPressed = false; }
 
 document.addEventListener("keydown", e => { if (e.code === "Space") if(!jumpPressed) startJump(); });
@@ -184,7 +176,7 @@ document.addEventListener("keyup", e => { if (e.code === "Space") { stopJump(); 
 canvas.addEventListener("touchstart", e => { e.preventDefault(); if(!jumpPressed) startJump(); });
 canvas.addEventListener("touchend", e => { e.preventDefault(); stopJump(); jumpCount=0; });
 
-// Elegir personaje
+// Selección personaje
 function selectCharacter(type) {
   characterType = type;
   gameStarted = true;
@@ -196,7 +188,7 @@ function selectCharacter(type) {
   bgMusic.play().catch(()=>{});
 }
 
-// Pausar y reiniciar
+// Pausar/reiniciar
 btnPause.addEventListener("click", () => {
   if(!gameStarted) return;
   paused=!paused;
@@ -205,7 +197,6 @@ btnPause.addEventListener("click", () => {
 });
 btnRestart.addEventListener("click", ()=>{ if(!gameStarted) return; resetGame(); });
 
-// Reset
 function resetGame() {
   player.y=200; player.velocityY=0; player.runFrame=0;
   obstacles=[]; particles=[]; floatingLetters=[];
@@ -215,7 +206,6 @@ function resetGame() {
   bgMusic.play().catch(()=>{});
 }
 
-// Actualizar jugador
 function updatePlayer() {
   player.velocityY += player.gravity;
   player.y += player.velocityY;
@@ -242,7 +232,6 @@ function updatePlayer() {
   player.runFrame += 0.2;
 }
 
-// Actualizar obstáculos y letras
 function updateObstacles(){
   for(let i=obstacles.length-1;i>=0;i--){ obstacles[i].x-=speed; if(obstacles[i].x+obstacles[i].width<0) obstacles.splice(i,1); }
   for(let i=floatingLetters.length-1;i>=0;i--){
@@ -251,11 +240,17 @@ function updateObstacles(){
   }
 }
 
-// Colisiones
+// Colisiones solo frontal
 function checkCollision(){
   for(let obs of obstacles){
-    if(player.x<obs.x+obs.width && player.x+player.width>obs.x && player.y<obs.y+obs.height && player.y+player.height>obs.y){
-      if(!gameOver && !superPower) { gameOver=true; createParticles(player.x+player.width/2,player.y+player.height/2); bgMusic.pause(); }
+    if(obs.type!=="platform" && obs.type!=="step"){
+      // colisión frontal
+      if(player.x < obs.x + obs.width && player.x + player.width > obs.x &&
+         player.y + player.height > obs.y && player.y < obs.y + obs.height){
+        if(!superPower && (player.x + player.width - player.velocityY <= obs.x || player.x - player.velocityY >= obs.x + obs.width)){
+          gameOver=true; createParticles(player.x+player.width/2,player.y+player.height/2); bgMusic.pause();
+        }
+      }
     }
   }
 
@@ -268,14 +263,9 @@ function checkCollision(){
       floatingLetters.splice(i,1);
     }
   }
-
-  for(let obs of obstacles){
-    if(obs.x+obs.width<player.x && !superPower){ gameOver=true; createParticles(player.x+player.width/2,player.y+player.height/2); bgMusic.pause(); }
-  }
 }
 
-// Dibujar jugador y obstáculos con destellos
-function drawPlayer(){ drawCharacter(player.x,player.y,characterType);}
+function drawPlayer(){ drawCharacter(player.x,player.y,characterType); }
 function drawObstacles(){
   for(let obs of obstacles){
     let glow = Math.sin(Date.now()/200)*0.5+0.5;
@@ -303,14 +293,12 @@ function drawObstacles(){
   });
 }
 
-// Game over
 function drawGameOver(){
   ctx.fillStyle="white"; ctx.font="30px Arial"; ctx.fillText("GAME OVER",280,120);
   ctx.font="20px Arial"; ctx.fillText("Puntaje: "+score,320,160);
   ctx.font="16px Arial"; ctx.fillText("Toca o presiona espacio para reiniciar",180,200);
 }
 
-// Loop
 function gameLoop(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   if(gameStarted){
