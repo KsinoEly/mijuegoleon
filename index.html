@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Juego de Saltos</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Juego de Saltos Avanzado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<h1>Juego de Saltos</h1>
+<h1>Juego de Saltos Avanzado</h1>
 
 <div id="menu">
   <p>Elegí tu personaje:</p>
@@ -15,11 +16,22 @@
   <button onclick="selectCharacter('girl')">👧 Nena</button>
 </div>
 
-<canvas id="game" width="800" height="300"></canvas>
+<div id="game-container">
+  <canvas id="game" width="800" height="300"></canvas>
+</div>
+
+<div id="controls" style="display:none;">
+  <button id="btnPause">Pausar</button>
+  <button id="btnRestart">Reiniciar</button>
+</div>
 
 <p>Puntaje: <span id="score">0</span></p>
 
-<script src="game.js"></script>
+<audio id="bgMusic" loop>
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_42324ae35d.mp3?filename=8-bit-retro-loop-6450.mp3" type="audio/mpeg" />
+  Tu navegador no soporta audio.
+</audio>
 
+<script src="game.js"></script>
 </body>
 </html>
